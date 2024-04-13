@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "TileVisu Image Variable": "TileVisu Bild Variable",    
             "Variable": "Variable",
             "Photo": "Foto",
             "Image transparency (values from 0 to 1)": "Transparenz Bild (Werte von 0 bis 1)",
