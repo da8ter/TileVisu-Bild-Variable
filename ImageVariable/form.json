@@ -68,9 +68,9 @@
                                         },
                                         {
                                             "type": "PopupButton",
-                                            "caption": "Setting",
+                                            "caption": "Settings",
                                             "popup": {
-                                                "caption": "Setting",
+                                                "caption": "Settings",
                                                 "items": [
        
                                                     {
