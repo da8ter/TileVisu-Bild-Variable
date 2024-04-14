@@ -2,7 +2,8 @@
     "translations": {
         "de": {
             "TileVisu Image Variable": "TileVisu Bild Variable",    
-            "Tile design": "Dacheldesign",
+            "Tile design": "Kacheldesign",
+            "Tile": "Kachel",
             "Variable": "Variable",
             "Variable:": "Variable:",
             "Image": "Foto",
