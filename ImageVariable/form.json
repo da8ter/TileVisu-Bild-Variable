@@ -1,45 +1,136 @@
 {
     "elements": [
+        
         {
-            "type": "SelectVariable",
-            "name": "Variable",
-            "caption": "Variable",
-            "validVariableTypes": []
-        },
+            "type": "ExpansionPanel",
+            "caption": "Tile design",
+            "items": [
+              
+                {
+                  "type": "Label",
+                  "caption": "Tile",
+                  "bold": true
+                },
+                {
+                  "type": "CheckBox",
+                  "name": "BG_Off",
+                  "caption": "Standard background image"
+              },
+                {
+                "type": "RowLayout",
+                "items": [
+                  {
+                    "type": "SelectMedia",
+                    "name": "bgImage",
+                    "caption": "Background image"
+                  },
+                  {
+                    "type": "NumberSpinner",
+                    "name": "Bildtransparenz",
+                    "caption": "Image transparency (values from 0 to 1)",
+                    "digits": 1,
+                    "minimum": 0.0,
+                    "maximum": 1.0,
+                    "suffix": ""
+                  },
+                  {
+                    "type": "SelectColor",
+                    "allowTransparent": "false",
+                    "name": "Kachelhintergrundfarbe",
+                    "caption": "Tile background color"
+                  }
+                ]
+              }
+            ]
+          },
+        
         {
-            "type": "SelectMedia",
-            "name": "bgImage",
-            "caption": "Photo"
-        },
-        {
-            "type": "NumberSpinner",
-            "name": "Bildtransparenz",
-            "caption": "Image transparency (values from 0 to 1)",
-            "digits": 1,
-            "minimum": 0.0,
-            "maximum": 1.0,
-            "suffix": ""
-        },
-        {
-            "type": "NumberSpinner",
-            "name": "Schriftgroesse",
-            "caption": "Font size",
-            "digits": 1,
-            "minimum": 0.5,
-            "maximum": 10.0,
-            "suffix": "em"
-        },
-        {
-            "type": "SelectColor",
-            "allowTransparent": "false",
-            "name": "Kachelhintergrundfarbe",
-            "caption": "Tile background color"
-        },
-        {
-            "type": "SelectColor",
-            "allowTransparent": "false",
-            "name": "Schriftfarbe",
-            "caption": "Font color"
+            "type": "ExpansionPanel",
+            "caption": "Switch",
+            "items": [
+
+                {
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "type": "ColumnLayout",
+                            "items": [
+                                {
+                                    "type": "Label",
+                                    "caption": "Switch:",
+                                    "bold": false
+                                },
+                                {
+                                    "type": "RowLayout",
+                                    "items": [
+                                        {
+                                            "type": "SelectVariable",
+                                            "name": "Variable",
+                                            "caption": "Variable:",
+                                            "validVariableTypes": [
+                                                0
+                                            ]
+                                        },
+                                        {
+                                            "type": "PopupButton",
+                                            "caption": "Setting",
+                                            "popup": {
+                                                "caption": "Setting",
+                                                "items": [
+       
+                                                    {
+                                                        "type": "CheckBox",
+                                                        "name": "VariableNameSwitch",
+                                                        "caption": "Display variable name"
+                                                    },
+                                                    {
+                                                        "type": "CheckBox",
+                                                        "name": "VariableIconSwitch",
+                                                        "caption": "Display icon"
+                                                    },
+                                                    {
+                                                        "type": "CheckBox",
+                                                        "name": "VariableVarIconSwitch",
+                                                        "caption": "Use variable icon"
+                                                    },
+                                                    {
+                                                        "type": "CheckBox",
+                                                        "name": "VariableAssoSwitch",
+                                                        "caption": "Display value"
+                                                    },
+                                                    {
+                                                        "type": "ValidationTextBox",
+                                                        "name": "VariableAltName",
+                                                        "caption": "Overwrite variable name:"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                                
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "NumberSpinner",
+                    "name": "Schriftgroesse",
+                    "caption": "Schriftgröße:",
+                    "digits": 1,
+                    "minimum": 0.5,
+                    "maximum": 10.0,
+                    "suffix": "em"
+                },
+                {
+                    "type": "SelectColor",
+                    "allowTransparent": "false",
+                    "name": "InfoMenueSchriftfarbe",
+                    "caption": "Schriftfarbe:",
+                    "visible": false
+                }
+
+            ]
         },
         {
             "type": "Label",

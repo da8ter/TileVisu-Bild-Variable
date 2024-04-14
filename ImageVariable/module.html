@@ -1,102 +1,252 @@
-<style>
-    /* Ich passe margin vom Body an und überschreibe somit das Standardpadding der Darstellung zu den Seiten */
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <script src="https://kit.fontawesome.com/7da29d74de.js" crossorigin="anonymous"></script>
 
 
-    body {
-        margin: 0px;
-        position: fixed;
-        width: 100%;
-        height: 100%;
-        background-color: var(--hintergrundfarbe);
-    }
+    <style>
+        /* Ich passe margin vom Body an und überschreibe somit das Standardpadding der Darstellung zu den Seiten */
 
-    .maindiv {
-        width: 100%;
-        height: 100%;
-        position: relative;
-        /* Wichtig, falls Sie Positionierung innerhalb des Divs benötigen */
-        display: flex;
-        justify-content: center;
-        /* Zentriert horizontal */
-        align-items: center;
-        /* Zentriert vertikal */
-
-    }
-
-    .maindiv:before {
-        content: ' ';
-        display: block;
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 1;
-        opacity: var(--transparenz);
-        background: var(--background-image, none) center / cover no-repeat;
-        background-repeat: no-repeat;
-        background-size: cover;
-    }
-
-    .maindiv>* {
-        position: relative;
-        z-index: 1;
-    }
-
-    .variablentext {
-        font-size: var(--fontsize);
-        color: var(--schriftfarbe);
-    }
-</style>
-
-
-<script>
-    function handleMessage(data) {
-        //console.log('Rohdaten empfangen:', data);
-
-        const decodedData = JSON.parse(data);
-
-
-        for (const parameter in decodedData) {
-
-            const element = document.getElementById(parameter);
-            var root = document.documentElement;
-            // Abhängig vom Parameter werden allerdings verschiedene Werte angepasst
-            switch (parameter) {
-                case 'image1':
-                    const mainDiv = document.querySelector('.maindiv');
-                    mainDiv.style.setProperty('--background-image', 'url(' + decodedData[parameter] + ')');
-                    break;
-                case 'variable':
-                    element.textContent = decodedData[parameter];
-                    break;
-
-                case 'fontsize':
-                    root.style.setProperty('--fontsize', decodedData[parameter] + 'em');
-                    break;
-                 
-                case 'hintergrundfarbe':
-                    root.style.setProperty('--hintergrundfarbe', decodedData[parameter]);
-                    break;    
-
-                    case 'schriftfarbe':
-                    root.style.setProperty('--schriftfarbe', decodedData[parameter]);
-                    break;  
-
-                case 'transparenz':
-                    root.style.setProperty('--transparenz', decodedData[parameter]);
-                    break; 
-
-                default:
-
-                    break;
-            }
+        :root {
 
         }
-    }
-</script>
+
+        body {
+            margin: 0px;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-color: var(--hintergrundfarbe);
+
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .maindiv2 {
+            width: 100%;
+            height: 90%;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .maindiv1 {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            flex-wrap: nowrap;
+            justify-content: center;
+            align-items: center;
+            align-content: flex-start;
+            box-sizing: border-box;
+            padding: 0px 0px 0px 0px;
+        }
 
 
-<div class="maindiv" id="image1">
-    <p class="variablentext" id="variable"></p>
-</div>
+        .maindiv1:before {
+            content: " ";
+            display: block;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: var(--transparenz);
+            background: var(--background-image, none) bottom / cover no-repeat;
+            background-repeat: no-repeat;
+            background-size: cover;
+
+        }
+
+        .maindiv1>* {
+            position: relative;
+            z-index: 1;
+        }
+
+
+
+        .menueleiste {
+
+            width: 100%;
+
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-left: 20px;
+            padding-right: 20px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            box-sizing: border-box;
+            border-top: 0px dotted #28cdab;
+            margin-top: 40px;
+
+        }
+
+        .menueleisterechts {
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            justify-content: center;
+            box-sizing: border-box;
+            flex-wrap: wrap;
+            /* Ermöglicht den Umbruch der Flex-Items */
+
+
+        }
+
+        .variablename {
+            padding-right: 1px;
+            padding-left: 1px;
+        }
+
+        .variableicon {
+            color: #ffffff;
+            width: 1.3em;
+            opacity: 1;
+            padding-right: 3px;
+            padding-left: 1px;
+        }
+
+
+        p {
+            margin: 0;
+        }
+
+
+        .variable {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            margin-top: 8px;
+            margin-bottom: 8px;
+            margin-left: 5px;
+            margin-right: 5px;
+            padding: 7px;
+            border-radius: 5px;
+            cursor: pointer;
+            border-width: 0px;
+            color: #ffffff;
+            font-size: var(--schriftgroesse);
+            box-sizing: border-box;
+            white-space: nowrap;
+
+        }
+
+        .variable {
+            background-color: var(--variablecolor);
+            min-width: var(--variablebreite);
+        }
+
+    </style>
+
+
+    <script>
+        function handleMessage(data) {
+            //console.log('Rohdaten empfangen:', data);
+
+            const decodedData = JSON.parse(data);
+
+            console.log('Decodierte Daten:', decodedData);
+
+            for (const parameter in decodedData) {
+                //console.log('Aktueller Parameter:', parameter, 'Wert:', decodedData[parameter]);
+
+                const element = document.getElementById(parameter.toLowerCase());
+                const parameter2 = String(parameter).toLowerCase();
+                console.log('Aktueller Parameter:', parameter, 'Wert:', decodedData[parameter]);
+                var root = document.documentElement;
+                // Abhängig vom Parameter werden allerdings verschiedene Werte angepasst
+                switch (parameter2) {
+                    case 'bgimage':
+                        const mainDiv = document.querySelector('.maindiv1');
+                        mainDiv.style.setProperty('--background-image', 'url(' + decodedData[parameter] + ')');
+                        break;
+
+                    case 'variableasso':
+                        element.className = 'variableasso';
+                        variable.className = 'variable';
+                        element.textContent = decodedData[parameter];
+                        if (!document.getElementById("variablename").classList.contains("hidden")) variabledoppelpunkt.className = 'variableasso';
+                        break;
+                    case 'variableicon':
+                        if (decodedData[parameter] !== "Transparent") {
+                            element.className = 'variableicon';
+                            element.src = '../../legacy/img/icons/' + decodedData[parameter] + '.svg';
+                            variable.className = 'variable';
+                        }
+                        break;
+                    case 'variablename':
+                        element.className = 'variablename';
+                        variable.className = 'variable';
+                        element.textContent = decodedData[parameter];
+                        break;
+                    case 'variablealtname':
+                        if (decodedData[parameter] != '') {
+                            variablename.className = 'variablename';
+                            variable.className = 'variable';
+                            variablename.textContent = decodedData[parameter];
+                        }
+                        break;
+                    case 'schriftgroesse':
+                        root.style.setProperty('--schriftgroesse', decodedData[parameter] + 'rem');
+                        break;
+                    case 'variable1color':
+                        root.style.setProperty('--variable1color', decodedData[parameter]);
+                        break;
+                    case 'hintergrundfarbe':
+                        root.style.setProperty('--hintergrundfarbe', decodedData[parameter]);
+                        break;
+                    case 'infoschriftfarbe':
+                        root.style.setProperty('--infoschriftfarbe', decodedData[parameter]);
+                        break;
+                    case 'infomenuefontsize':
+                        root.style.setProperty('--infomenuefontsize', decodedData[parameter] + 'em');
+                        break;
+                    case 'infomenueschriftfarbe':
+                        root.style.setProperty('--infomenueschriftfarbe', decodedData[parameter]);
+                        break;
+                    case 'infomenuehintergrundfarbe':
+                        root.style.setProperty('--infomenuehintergrundfarbe', decodedData[parameter]);
+
+                        break;
+                    case 'transparenz':
+                        root.style.setProperty('--transparenz', decodedData[parameter]);
+                        break;
+
+                    default:
+                        //console.log('Setze innerHTML für', parameter);
+                        // Setze innerHTML nur, wenn das Element gefunden wurde
+                        //element.innerHTML = decodedData[parameter];<i id="temp_icon" class="fa-solid fa-house-chimney-user icon"></i>
+                        break;
+                }
+
+            }
+        }
+    </script>
+
+
+    <div class="maindiv1">
+        <div class="menueleiste" id="menueleiste">
+
+
+            <div class="menueleisterechts">
+
+                <div id="variable" class="hidden">
+                    <img class="hidden" id="variableicon" src="">
+                    <p class="hidden" id="variablename"></p>
+                    <p class="hidden" id="variabledoppelpunkt">:&nbsp;</p>
+                    <p class="hidden" id="variableasso"></p>
+                </div>
+             </div>
+        </div>
+    </div>
