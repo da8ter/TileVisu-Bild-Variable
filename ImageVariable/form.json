@@ -46,7 +46,7 @@
         
         {
             "type": "ExpansionPanel",
-            "caption": "Switch",
+            "caption": "Variable",
             "items": [
 
                 {
@@ -55,11 +55,6 @@
                         {
                             "type": "ColumnLayout",
                             "items": [
-                                {
-                                    "type": "Label",
-                                    "caption": "Switch:",
-                                    "bold": false
-                                },
                                 {
                                     "type": "RowLayout",
                                     "items": [
