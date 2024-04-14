@@ -9,9 +9,7 @@
     <style>
         /* Ich passe margin vom Body an und überschreibe somit das Standardpadding der Darstellung zu den Seiten */
 
-        :root {
-
-        }
+        :root {}
 
         body {
             margin: 0px;
@@ -63,7 +61,7 @@
 
 
 
-        .menueleiste {
+        .center {
 
             width: 100%;
 
@@ -81,15 +79,6 @@
 
         }
 
-        .menueleisterechts {
-            display: flex;
-            flex-direction: row;
-            align-items: stretch;
-            justify-content: center;
-            box-sizing: border-box;
-            flex-wrap: wrap;
-
-        }
 
         .variablename {
             padding-right: 1px;
@@ -129,8 +118,6 @@
             white-space: nowrap;
 
         }
-
-
     </style>
 
 
@@ -220,17 +207,13 @@
 
 
     <div class="maindiv1">
-        <div class="menueleiste" id="menueleiste">
-
-
-
-
-                <div id="variable" class="hidden">
-                    <img class="hidden" id="variableicon" src="">
-                    <p class="hidden" id="variablename"></p>
-                    <p class="hidden" id="variabledoppelpunkt">:&nbsp;</p>
-                    <p class="hidden" id="variableasso"></p>
-                </div>
+        <div class="center" id="center">
+            <div id="variable" class="hidden">
+                <img class="hidden" id="variableicon" src="">
+                <p class="hidden" id="variablename"></p>
+                <p class="hidden" id="variabledoppelpunkt">:&nbsp;</p>
+                <p class="hidden" id="variableasso"></p>
+            </div>
 
         </div>
     </div>
