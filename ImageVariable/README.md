@@ -13,7 +13,7 @@
 
 ### 1. Funktionsumfang
 
-* Die "Button- Kachel" ermöglicht es bis zu 10 Button in einer Kachel abzubilden. Möglich ist das schalten einer Bool-Variable. Der Inhalt eines Button kann frei konfiguriert werden. Möglich ist die Anzeige von: Icon, Variablen-Wert, Variablen-Name oder einem freien Text. Wie bei all meinen Kacheln kann das Aussehen weitestgehend frei konfiguriert werden. Möglich sind eigene Hintergrundbilder (inkl. einstellbarer Transparenz), Hintergrundfarben und Schriftgrößen.
+* Die "Bild+Variable Kachel" ermöglicht eine Variable zentriert in der Kachel anzuzeigen. Der Inhalt kann frei konfiguriert werden. Möglich ist die Anzeige von: Icon, Variablen-Wert, Variablen-Name oder einem freien Text. Wie bei all meinen Kacheln kann das Aussehen weitestgehend frei konfiguriert werden. Möglich sind eigene Hintergrundbilder (inkl. einstellbarer Transparenz), Hintergrundfarben und Schriftgrößen.
 
 ### 2. Voraussetzungen
 
@@ -23,12 +23,12 @@
 
 * Über den Module Store
 * Über das Module Control folgende URL hinzufügen
-https://github.com/da8ter/TileVisu-Button-Kachel.git
+https://github.com/da8ter/TileVisu-Bild-Variable.git
 
 
 ### 4. Einrichten der Instanzen in IP-Symcon
 
- Unter 'Instanz hinzufügen' kann die Wallbox-Kachel mithilfe des Schnellfilters gefunden werden. (Suchbegriff: Button, TileVisu oder Kachel)  
+ Unter 'Instanz hinzufügen' kann die Wallbox-Kachel mithilfe des Schnellfilters gefunden werden. (Suchbegriff: Variable, Bild, TileVisu oder Kachel)  
 	- Weitere Informationen zum Hinzufügen von Instanzen in der [Dokumentation der Instanzen](https://www.symcon.de/service/dokumentation/konzepte/instanzen/#Instanz_hinzufügen)
 
 ### 5. Kachelkonfiguration
@@ -44,18 +44,16 @@ Hintergrundbild|Auswahl eines eigenen Medienobjekts als Hintergrund.
 Transparenz Bild|Einstellung der Transparenz des Hintergrundbildes, um es abzudunkeln oder farblich anzupassen. 
 Kachelhintergrundfarbe|Farbe des Kachelhintergrunds (wird nur bei eingestellter Bildtransparenz sichtbar)
 
-__Schalter__
+__Variable__
 Name     | Beschreibung
 -------- | ------------------
-Schalter1|Bool-Variable die geschaltet werden soll. Die Variable benötigt ein Variablenprofil mit Assoziationen. Icon und die Farbe des Button werden aus dem Variablenprofil ausgelesen. Wenn dort keine Farbe eingestellt ist wird nur der Text angezeigt und kein farbiger Button!
+Variable|Die Variable die angezeigt werden soll. Text und Icon werden aus dem Variablenprofil ausgelesen.
 Einstellung|Öffnet ein Fenster mit weiteren Konfigurationsmöglichkeiten.
 Schriftgröße|Stellt die Schriftgröße der Buttonbeschriftung ein.
-Schalter 2 bis 10|siehe Schalter 1
 
 __Einstellungen__
 Name     | Beschreibung
 -------- | ------------------
-Breite|Die Button-Breite in Pixel. Dies ist z.B. sinnvoll wenn der Aus-Status eine andere Textlänge hat als der Ein-Status und sich daraus eine unterschiedliche Button-Breite ergibt.
 Variablenname anzeigen|Anzeige des Variablennamen aus- oder einschalten.
 Icon anzeigen|Anzeige des Assoziationsicon aus- oder einschalten.
 Variablen-Icon anzeigen|Zeigt statt des Assiziations-Icon das Variablen-Icon an.
