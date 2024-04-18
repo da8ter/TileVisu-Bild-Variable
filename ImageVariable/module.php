@@ -1,5 +1,5 @@
 <?php
-class TileVisuImageVariable extends IPSModule
+class TileVisuImageVariableTile extends IPSModule
 {
     public function Create()
     {
