@@ -138,13 +138,18 @@
                 //console.log('Aktueller Parameter:', parameter, 'Wert:', decodedData[parameter]);
                 var root = document.documentElement;
                 const mainDiv = document.querySelector('.maindiv1');
+                var backgroundUpdateInterval;
                 // Abhängig vom Parameter werden allerdings verschiedene Werte angepasst
                 switch (parameter2) {
                     case 'bgimage':
                     mainDiv.style.setProperty('--background-image', 'url(' + decodedData[parameter] + ')');
+                    if (backgroundUpdateInterval) {
+                    clearInterval(backgroundUpdateInterval);
+                    }
                         break;
                     case 'imageurl':
                     mainDiv.style.setProperty('--background-image', 'url(' + decodedData[parameter] + ')');
+                    setInterval(updateBackground, 300000);
                         break;
                     case 'variableasso':
                         element.className = 'variableasso';
@@ -227,7 +232,7 @@
     }
     
     // Setzen Sie das Intervall für die Funktion auf 30 Sekunden (30000 Millisekunden)
-    setInterval(updateBackground, 300000);
+    //setInterval(updateBackground, 300000);
     </script>
     
     
