@@ -171,10 +171,10 @@ function stopReloading() {
                         stopReloading()
                         break;
                     case 'imageurl':
-                        if (!decodedData[parameter]) {
+                        if (decodedData[parameter]) {
                             mainDiv.style.setProperty('--background-image', 'url(' + decodedData[parameter] + ')');
                         startReloading()
-                        
+
                         }
 
                         break;
