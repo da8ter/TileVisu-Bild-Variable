@@ -25,6 +25,11 @@
                     "caption": "Background image"
                   },
                   {
+                    "type": "ValidationTextBox",
+                    "name": "ImageURL",
+                    "caption": "Image URL"
+                },
+                  {
                     "type": "NumberSpinner",
                     "name": "Bildtransparenz",
                     "caption": "Image transparency (values from 0 to 1)",

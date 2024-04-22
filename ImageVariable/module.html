@@ -141,7 +141,10 @@
                         const mainDiv = document.querySelector('.maindiv1');
                         mainDiv.style.setProperty('--background-image', 'url(' + decodedData[parameter] + ')');
                         break;
-
+                    case 'imageurl':
+                        const mainDiv = document.querySelector('.maindiv1');
+                        mainDiv.style.setProperty('--background-image', 'url(' + decodedData[parameter] + ')');
+                        break;
                     case 'variableasso':
                         element.className = 'variableasso';
                         variable.className = 'variable';
