@@ -35,6 +35,8 @@
             align-content: flex-start;
             box-sizing: border-box;
             padding: 0px 0px 0px 0px;
+            --background-image: url('https://example.com/initial-image.jpg');
+
         }
 
 
@@ -207,23 +209,20 @@
     </script>
 <script>
     function updateBackground() {
-        const element = document.getElementById('maindiv1');
-        // Extrahieren der aktuellen URL aus dem Style des Elements
-        let style = window.getComputedStyle(element);
-        let backgroundImage = style.backgroundImage;
-        let imageUrl = backgroundImage.slice(5, -2); // Entfernt 'url("' am Anfang und '")' am Ende
+        const element = document.querySelector('.maindiv1');
+        let imageUrl = getComputedStyle(element).getPropertyValue('--background-image');
+        imageUrl = imageUrl.slice(5, -2); // Entfernt 'url("' am Anfang und '")' am Ende
     
         // Fügen Sie einen Zeitstempel hinzu, um Caching zu vermeiden
         const timestamp = new Date().getTime();
-        // Entfernen Sie vorherige Zeitstempel, falls vorhanden
         imageUrl = imageUrl.split('?')[0];
         const newImageUrl = imageUrl + '?time=' + timestamp;
     
-        element.style.backgroundImage = `url('${newImageUrl}')`;
-        console.log(newImageUrl);
+        // Aktualisieren der CSS-Variable
+        element.style.setProperty('--background-image', `url('${newImageUrl}')`);
     }
     
-    // Setzen Sie das Intervall für die Funktion auf 300 Sekunden (300000 Millisekunden)
+    // Setzen Sie das Intervall für die Funktion auf 30 Sekunden (30000 Millisekunden)
     setInterval(updateBackground, 30000);
     </script>
     
