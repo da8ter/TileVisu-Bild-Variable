@@ -213,10 +213,14 @@
         let imageUrl = getComputedStyle(element).getPropertyValue('--background-image');
         imageUrl = imageUrl.slice(4, -1); // Entfernt 'url("' am Anfang und '")' am Ende
     
-        // Fügen Sie einen Zeitstempel hinzu, um Caching zu vermeiden
+        // Entfernen eines vorhandenen Zeitstempels, falls vorhanden
+        imageUrl = imageUrl.replace(/&?time=\d+/g, '');
+    
+        // Fügen Sie einen neuen Zeitstempel hinzu, um Caching zu vermeiden
         const timestamp = new Date().getTime();
         // Überprüfen, ob bereits ein Query-Parameter existiert und entsprechend anhängen
-        const newImageUrl = imageUrl.includes('?') ? imageUrl + '&time=' + timestamp : imageUrl + '?time=' + timestamp;
+        const hasQuery = imageUrl.includes('?');
+        const newImageUrl = `${imageUrl}${hasQuery ? '&' : '?'}time=${timestamp}`;
     
         // Aktualisieren der CSS-Variable
         element.style.setProperty('--background-image', `url('${newImageUrl}')`);
@@ -225,6 +229,7 @@
     // Setzen Sie das Intervall für die Funktion auf 30 Sekunden (30000 Millisekunden)
     setInterval(updateBackground, 30000);
     </script>
+    
     
     
 
