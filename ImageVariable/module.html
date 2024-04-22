@@ -143,11 +143,9 @@
                 switch (parameter2) {
                     case 'bgimage':
                         mainDiv.style.setProperty('--background-image', 'url(' + decodedData[parameter] + ')');
-                        setUpdateInterval(300000); // 0 Sekunden
                         break;
                     case 'imageurl':
                         mainDiv.style.setProperty('--background-image', 'url(' + decodedData[parameter] + ')');
-                        setUpdateInterval(300000);
                         break;
                     case 'variableasso':
                         element.className = 'variableasso';
@@ -210,40 +208,6 @@
             }
         }
 
-
-        var backgroundUpdateInterval;
-        var currentInterval = 30000; // Startintervall auf 30 Sekunden setzen
-
-        function setUpdateInterval(interval) {
-            if (currentInterval !== interval) {
-                currentInterval = interval;
-                if (backgroundUpdateInterval) {
-                    clearInterval(backgroundUpdateInterval);
-                }
-                backgroundUpdateInterval = setInterval(updateBackground, interval);
-            }
-        }
-
-        function updateBackground() {
-            const element = document.querySelector('.maindiv1');
-            let imageUrl = getComputedStyle(element).getPropertyValue('--background-image');
-            imageUrl = imageUrl.slice(4, -1); // Entfernt 'url("' am Anfang und '")' am Ende
-
-            // Entfernen eines vorhandenen Zeitstempels, falls vorhanden
-            imageUrl = imageUrl.replace(/&?time=\d+/g, '');
-
-            // Fügen Sie einen neuen Zeitstempel hinzu, um Caching zu vermeiden
-            const timestamp = new Date().getTime();
-            // Überprüfen, ob bereits ein Query-Parameter existiert und entsprechend anhängen
-            const hasQuery = imageUrl.includes('?');
-            const newImageUrl = `${imageUrl}${hasQuery ? '&' : '?'}time=${timestamp}`;
-
-            // Aktualisieren der CSS-Variable
-            element.style.setProperty('--background-image', `url(${newImageUrl})`);
-        }
-
-        // Initialisiert das Intervall
-        setUpdateInterval(currentInterval);
     </script>
 
 
