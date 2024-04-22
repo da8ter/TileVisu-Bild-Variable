@@ -10,6 +10,7 @@ class TileVisuImageVariableTile extends IPSModule
         // Drei Eigenschaften für die dargestellten Zähler
         $this->RegisterPropertyInteger("bgImage", 0);
         $this->RegisterPropertyBoolean('BG_Off', 1);
+        $this->RegisterPropertyString('ImageURL', '');
         $this->RegisterPropertyFloat('Schriftgroesse', 1);
         $this->RegisterPropertyFloat('Bildtransparenz', 0.7);
         $this->RegisterPropertyInteger('Kachelhintergrundfarbe', 0x000000);
@@ -157,6 +158,7 @@ class TileVisuImageVariableTile extends IPSModule
             $result['schriftgroesse'] =  $this->ReadPropertyFloat('Schriftgroesse');
             $result['transparenz'] =  $this->ReadPropertyFloat('Bildtransparenz');
             $result['variablealtname'] =  $this->ReadPropertyString('VariableAltName');
+            $result['imageurl'] =  $this->ReadPropertyString('ImageURL');
 
             
             // Prüfe vorweg, ob ein Bild ausgewählt wurde
