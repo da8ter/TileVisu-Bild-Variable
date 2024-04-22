@@ -205,7 +205,27 @@
             }
         }
     </script>
-
+<script>
+    function updateBackground() {
+        const element = document.getElementById('maindiv1');
+        // Extrahieren der aktuellen URL aus dem Style des Elements
+        let style = window.getComputedStyle(element);
+        let backgroundImage = style.backgroundImage;
+        let imageUrl = backgroundImage.slice(5, -2); // Entfernt 'url("' am Anfang und '")' am Ende
+    
+        // Fügen Sie einen Zeitstempel hinzu, um Caching zu vermeiden
+        const timestamp = new Date().getTime();
+        // Entfernen Sie vorherige Zeitstempel, falls vorhanden
+        imageUrl = imageUrl.split('?')[0];
+        const newImageUrl = imageUrl + '?time=' + timestamp;
+    
+        element.style.backgroundImage = `url('${newImageUrl}')`;
+    }
+    
+    // Setzen Sie das Intervall für die Funktion auf 300 Sekunden (300000 Millisekunden)
+    setInterval(updateBackground, 300000);
+    </script>
+    
 
     <div class="maindiv1">
         <div class="center" id="center">
