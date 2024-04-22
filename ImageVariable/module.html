@@ -211,7 +211,7 @@
     function updateBackground() {
         const element = document.querySelector('.maindiv1');
         let imageUrl = getComputedStyle(element).getPropertyValue('--background-image');
-        imageUrl = imageUrl.slice(4, -1); // Entfernt 'url("' am Anfang und '")' am Ende
+        imageUrl = imageUrl.slice(5, -2); // Entfernt 'url("' am Anfang und '")' am Ende
     
         // Entfernen eines vorhandenen Zeitstempels, falls vorhanden
         imageUrl = imageUrl.replace(/&?time=\d+/g, '');
