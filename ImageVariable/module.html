@@ -171,8 +171,11 @@ function stopReloading() {
                         stopReloading()
                         break;
                     case 'imageurl':
-                        mainDiv.style.setProperty('--background-image', 'url(' + decodedData[parameter] + ')');
+                        if (!decodedData[parameter]) {
+                            mainDiv.style.setProperty('--background-image', 'url(' + decodedData[parameter] + ')');
                         startReloading()
+                        }
+
                         break;
                     case 'variableasso':
                         element.className = 'variableasso';
