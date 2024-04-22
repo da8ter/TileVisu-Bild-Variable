@@ -215,8 +215,8 @@
     
         // Fügen Sie einen Zeitstempel hinzu, um Caching zu vermeiden
         const timestamp = new Date().getTime();
-        imageUrl = imageUrl.split('?')[0];
-        const newImageUrl = imageUrl + '?time=' + timestamp;
+        // Überprüfen, ob bereits ein Query-Parameter existiert und entsprechend anhängen
+        const newImageUrl = imageUrl.includes('?') ? imageUrl + '&time=' + timestamp : imageUrl + '?time=' + timestamp;
     
         // Aktualisieren der CSS-Variable
         element.style.setProperty('--background-image', `url('${newImageUrl}')`);
@@ -225,6 +225,7 @@
     // Setzen Sie das Intervall für die Funktion auf 30 Sekunden (30000 Millisekunden)
     setInterval(updateBackground, 30000);
     </script>
+    
     
 
     <div id="maindiv1" class="maindiv1">
