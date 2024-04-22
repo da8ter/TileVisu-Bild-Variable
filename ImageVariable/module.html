@@ -139,6 +139,7 @@ function startReloading() {
     reloadInterval = setInterval(function() {
         window.location.reload();
     }, seconds * 1000); // Umrechnung von Sekunden in Millisekunden
+    console.log('Seite neu geladen');
 }
 
 function stopReloading() {
