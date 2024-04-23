@@ -176,7 +176,6 @@ class TileVisuImageVariableTile extends IPSModule
             // Prüfe vorweg, ob ein Bild ausgewählt wurde
             $imageID = $this->ReadPropertyInteger('bgImage');
             if (IPS_MediaExists($imageID)) {
-                $result['imageurl'] =  '';
                 $image = IPS_GetMedia($imageID);
                 if ($image['MediaType'] === MEDIATYPE_IMAGE) {
                     $imageFile = explode('.', $image['MediaFile']);
@@ -210,18 +209,26 @@ class TileVisuImageVariableTile extends IPSModule
                         // Hänge base64-codierten Inhalt des Bildes an
                         $imageContent .= IPS_GetMediaContent($imageID);
                         $result['bgimage'] = $imageContent;
+                        $result['imageurl'] =  '';
                     }
 
                 }
             }
             else{
+                //Wenn kein Bild durch den User konfiguriert dann Standardhintergrundbild verwenden
                 $imageContent = 'data:image/png;base64,';
                 $imageContent .= base64_encode(file_get_contents(__DIR__ . '/../imgs/kachelhintergrund1.png'));
 
+                //Standardhintergrundbild nur verwenden wenn Schalter BG_Off = true
                 if ($this->ReadPropertyBoolean('BG_Off')) {
                     $result['bgimage'] = $imageContent;
+                    $result['imageurl'] =  '';
                 }
-                $result['imageurl'] =  $this->ReadPropertyString('ImageURL');
+                else {
+                    $result['imageurl'] =  $this->ReadPropertyString('ImageURL');
+                }
+                
+                
             } 
 
 
