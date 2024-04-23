@@ -35,6 +35,8 @@
             align-content: flex-start;
             box-sizing: border-box;
             padding: 0px 0px 0px 0px;
+            --background-image: url('');
+
         }
 
 
@@ -121,6 +123,8 @@
 
 
     <script>
+
+
         function handleMessage(data) {
             //console.log('Rohdaten empfangen:', data);
 
@@ -135,13 +139,26 @@
                 const parameter2 = String(parameter).toLowerCase();
                 //console.log('Aktueller Parameter:', parameter, 'Wert:', decodedData[parameter]);
                 var root = document.documentElement;
+                const mainDiv = document.querySelector('.maindiv1');
+                var backgroundUpdateInterval;
                 // Abhängig vom Parameter werden allerdings verschiedene Werte angepasst
                 switch (parameter2) {
                     case 'bgimage':
-                        const mainDiv = document.querySelector('.maindiv1');
                         mainDiv.style.setProperty('--background-image', 'url(' + decodedData[parameter] + ')');
-                        break;
+                        clearInterval(backgroundUpdateInterval);
+                        //console.log('Reload gestoppt nach Aktivierung von bgimage');
 
+                        break;
+                    case 'imageurl':
+                        if (decodedData[parameter]) {
+                            mainDiv.style.setProperty('--background-image', 'url(' + decodedData[parameter] + ')');
+                            backgroundUpdateInterval = setInterval(function() {
+                                //console.log('Die Seite wird alle ' + seconds + ' Sekunden neu geladen aufgrund von imageurl.');
+                                window.location.reload();
+                            }, seconds);
+                        }
+
+                        break;
                     case 'variableasso':
                         element.className = 'variableasso';
                         variable.className = 'variable';
@@ -202,10 +219,12 @@
 
             }
         }
+
     </script>
 
 
-    <div class="maindiv1">
+
+    <div id="maindiv1" class="maindiv1">
         <div class="center" id="center">
             <div id="variable" class="hidden">
                 <img class="hidden" id="variableicon" src="">

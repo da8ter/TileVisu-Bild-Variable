@@ -10,6 +10,7 @@ class TileVisuImageVariableTile extends IPSModule
         // Drei Eigenschaften für die dargestellten Zähler
         $this->RegisterPropertyInteger("bgImage", 0);
         $this->RegisterPropertyBoolean('BG_Off', 1);
+        $this->RegisterPropertyString('ImageURL', '');
         $this->RegisterPropertyFloat('Schriftgroesse', 1);
         $this->RegisterPropertyFloat('Bildtransparenz', 0.7);
         $this->RegisterPropertyInteger('Kachelhintergrundfarbe', 0x000000);
@@ -21,6 +22,7 @@ class TileVisuImageVariableTile extends IPSModule
         $this->RegisterPropertyBoolean('VariableIconSwitch', 1);
         $this->RegisterPropertyBoolean('VariableVarIconSwitch', 0);
         $this->RegisterPropertyBoolean('VariableAssoSwitch', 1);
+        $this->RegisterPropertyInteger('Sekunden', 3600);
         // Visualisierungstyp auf 1 setzen, da wir HTML anbieten möchten
         $this->SetVisualizationType(1);
     }
@@ -115,9 +117,20 @@ class TileVisuImageVariableTile extends IPSModule
         // Füge statisches HTML aus Datei hinzu
         $module = file_get_contents(__DIR__ . '/module.html');
 
+
+        $secondsvalue = $this->ReadPropertyInteger('Sekunden') * 1000;
+
+
+        $seconds = '<script type="text/javascript">';
+        $seconds .= 'var seconds = ' . $secondsvalue . ';';
+        $seconds .= '</script>';
+
+
+
+
         // Gebe alles zurück.
         // Wichtig: $initialHandling nach hinten, da die Funktion handleMessage erst im HTML definiert wird
-        return $module . $initialHandling;
+        return $seconds . $module . $initialHandling;
     }
 
 
@@ -157,6 +170,7 @@ class TileVisuImageVariableTile extends IPSModule
             $result['schriftgroesse'] =  $this->ReadPropertyFloat('Schriftgroesse');
             $result['transparenz'] =  $this->ReadPropertyFloat('Bildtransparenz');
             $result['variablealtname'] =  $this->ReadPropertyString('VariableAltName');
+            
 
             
             // Prüfe vorweg, ob ein Bild ausgewählt wurde
@@ -195,17 +209,26 @@ class TileVisuImageVariableTile extends IPSModule
                         // Hänge base64-codierten Inhalt des Bildes an
                         $imageContent .= IPS_GetMediaContent($imageID);
                         $result['bgimage'] = $imageContent;
+                        //$result['imageurl'] =  '';
                     }
 
                 }
             }
             else{
+                //Wenn kein Bild durch den User konfiguriert dann Standardhintergrundbild verwenden
                 $imageContent = 'data:image/png;base64,';
                 $imageContent .= base64_encode(file_get_contents(__DIR__ . '/../imgs/kachelhintergrund1.png'));
 
+                //Standardhintergrundbild nur verwenden wenn Schalter BG_Off = true
                 if ($this->ReadPropertyBoolean('BG_Off')) {
                     $result['bgimage'] = $imageContent;
+                    //$result['imageurl'] =  '';
                 }
+                else {
+                    $result['imageurl'] =  $this->ReadPropertyString('ImageURL');
+                }
+                
+                
             } 
 
 
