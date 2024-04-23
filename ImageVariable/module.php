@@ -209,7 +209,7 @@ class TileVisuImageVariableTile extends IPSModule
                         // Hänge base64-codierten Inhalt des Bildes an
                         $imageContent .= IPS_GetMediaContent($imageID);
                         $result['bgimage'] = $imageContent;
-                        $result['imageurl'] =  '';
+                        //$result['imageurl'] =  '';
                     }
 
                 }
@@ -222,7 +222,7 @@ class TileVisuImageVariableTile extends IPSModule
                 //Standardhintergrundbild nur verwenden wenn Schalter BG_Off = true
                 if ($this->ReadPropertyBoolean('BG_Off')) {
                     $result['bgimage'] = $imageContent;
-                    $result['imageurl'] =  '';
+                    //$result['imageurl'] =  '';
                 }
                 else {
                     $result['imageurl'] =  $this->ReadPropertyString('ImageURL');
