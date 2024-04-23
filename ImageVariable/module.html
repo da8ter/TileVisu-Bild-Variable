@@ -153,9 +153,9 @@
                         if (decodedData[parameter]) {
                             mainDiv.style.setProperty('--background-image', 'url(' + decodedData[parameter] + ')');
                             backgroundUpdateInterval = setInterval(function() {
-                                console.log('Die Seite wird alle 60 Sekunden neu geladen aufgrund von imageurl.');
+                                console.log('Die Seite wird alle 60 Sekunden neu geladen aufgrund von imageurl.' seconds);
                                 window.location.reload();
-                            }, 60000);
+                            }, seconds);
                         }
 
                         break;

@@ -117,9 +117,20 @@ class TileVisuImageVariableTile extends IPSModule
         // Füge statisches HTML aus Datei hinzu
         $module = file_get_contents(__DIR__ . '/module.html');
 
+
+        $secondsvalue = $this->ReadPropertyInteger('Sekunden') * 1000;
+
+
+        $seconds = '<script type="text/javascript">';
+        $seconds .= 'var seconds = ' . $secondsvalue . ';';
+        $seconds .= '</script>';
+
+
+
+
         // Gebe alles zurück.
         // Wichtig: $initialHandling nach hinten, da die Funktion handleMessage erst im HTML definiert wird
-        return $module . $initialHandling;
+        return $module . $seconds . $initialHandling;
     }
 
 
