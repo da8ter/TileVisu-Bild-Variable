@@ -170,12 +170,13 @@ class TileVisuImageVariableTile extends IPSModule
             $result['schriftgroesse'] =  $this->ReadPropertyFloat('Schriftgroesse');
             $result['transparenz'] =  $this->ReadPropertyFloat('Bildtransparenz');
             $result['variablealtname'] =  $this->ReadPropertyString('VariableAltName');
-            $result['imageurl'] =  $this->ReadPropertyString('ImageURL');
+            
 
             
             // Prüfe vorweg, ob ein Bild ausgewählt wurde
             $imageID = $this->ReadPropertyInteger('bgImage');
             if (IPS_MediaExists($imageID)) {
+                $result['imageurl'] =  '';
                 $image = IPS_GetMedia($imageID);
                 if ($image['MediaType'] === MEDIATYPE_IMAGE) {
                     $imageFile = explode('.', $image['MediaFile']);
@@ -220,6 +221,7 @@ class TileVisuImageVariableTile extends IPSModule
                 if ($this->ReadPropertyBoolean('BG_Off')) {
                     $result['bgimage'] = $imageContent;
                 }
+                $result['imageurl'] =  $this->ReadPropertyString('ImageURL');
             } 
 
 
