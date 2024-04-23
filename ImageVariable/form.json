@@ -33,7 +33,7 @@
                     "type": "NumberSpinner", 
                     "name": "Sekunden", 
                     "caption": "Update interval",
-                    "minimum": 60,
+                    "minimum": 10,
                     "suffix": "seconds"
                 },
                   {
