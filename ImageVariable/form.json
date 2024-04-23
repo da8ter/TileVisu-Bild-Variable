@@ -34,7 +34,8 @@
                     "name": "Sekunden", 
                     "caption": "Update interval",
                     "minimum": 10,
-                    "suffix": "seconds"
+                    "suffix": "seconds",
+                    "width": "100px"
                 },
                   {
                     "type": "NumberSpinner",
