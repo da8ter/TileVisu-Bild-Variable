@@ -35,7 +35,7 @@
                     "caption": "Update interval",
                     "minimum": 10,
                     "suffix": "seconds",
-                    "width": "100px"
+                    "width": "150px"
                 },
                   {
                     "type": "NumberSpinner",
