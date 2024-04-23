@@ -27,7 +27,8 @@
                   {
                     "type": "ValidationTextBox",
                     "name": "ImageURL",
-                    "caption": "Image URL"
+                    "caption": "Image URL",
+                    "width": "500px"
                 },
                 { 
                     "type": "NumberSpinner", 
