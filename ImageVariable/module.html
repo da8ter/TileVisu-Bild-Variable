@@ -146,11 +146,14 @@
                     case 'bgimage':
                         mainDiv.style.setProperty('--background-image', 'url(' + decodedData[parameter] + ')');
                         clearInterval(backgroundUpdateInterval);
+                        console.log('Reload gestoppt nach Aktivierung von bgimage');
+
                         break;
                     case 'imageurl':
                         if (decodedData[parameter]) {
                             mainDiv.style.setProperty('--background-image', 'url(' + decodedData[parameter] + ')');
                             backgroundUpdateInterval = setInterval(function() {
+                                console.log('Die Seite wird alle 60 Sekunden neu geladen aufgrund von imageurl.');
                                 window.location.reload();
                             }, 60000);
                         }
