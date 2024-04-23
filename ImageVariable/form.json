@@ -29,6 +29,13 @@
                     "name": "ImageURL",
                     "caption": "Image URL"
                 },
+                { 
+                    "type": "NumberSpinner", 
+                    "name": "Sekunden", 
+                    "caption": "Update interval",
+                    "minimum": 60,
+                    "suffix": "seconds"
+                },
                   {
                     "type": "NumberSpinner",
                     "name": "Bildtransparenz",

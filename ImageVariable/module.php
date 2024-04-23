@@ -22,6 +22,7 @@ class TileVisuImageVariableTile extends IPSModule
         $this->RegisterPropertyBoolean('VariableIconSwitch', 1);
         $this->RegisterPropertyBoolean('VariableVarIconSwitch', 0);
         $this->RegisterPropertyBoolean('VariableAssoSwitch', 1);
+        $this->RegisterPropertyInteger('Sekunden', 3600);
         // Visualisierungstyp auf 1 setzen, da wir HTML anbieten möchten
         $this->SetVisualizationType(1);
     }
