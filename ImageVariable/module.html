@@ -124,29 +124,6 @@
 
     <script>
 
-var reloadInterval;
-
-function startReloading() {
-    // Hole die Zeitdauer von dem Eingabefeld
-    var seconds = 60000;
-
-    // Stoppe vorherige Intervalle, falls vorhanden
-    if (reloadInterval) {
-        clearInterval(reloadInterval);
-    }
-
-    // Setze das neue Intervall
-    reloadInterval = setInterval(function() {
-        window.location.reload();
-    }, seconds * 1000); // Umrechnung von Sekunden in Millisekunden
-    console.log('Seite neu geladen');
-}
-
-function stopReloading() {
-    clearInterval(reloadInterval);
-    console.log('Seite neu geladen STOPP');
-}
-
 
         function handleMessage(data) {
             //console.log('Rohdaten empfangen:', data);
@@ -168,13 +145,14 @@ function stopReloading() {
                 switch (parameter2) {
                     case 'bgimage':
                         mainDiv.style.setProperty('--background-image', 'url(' + decodedData[parameter] + ')');
-                        //stopReloading()
+                        clearInterval(backgroundUpdateInterval);
                         break;
                     case 'imageurl':
                         if (decodedData[parameter]) {
                             mainDiv.style.setProperty('--background-image', 'url(' + decodedData[parameter] + ')');
-                        //startReloading()
-
+                            backgroundUpdateInterval = setInterval(function() {
+                                window.location.reload();
+                            }, 60000);
                         }
 
                         break;
