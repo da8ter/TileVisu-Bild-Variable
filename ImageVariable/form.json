@@ -25,20 +25,6 @@
                     "caption": "Background image"
                   },
                   {
-                    "type": "ValidationTextBox",
-                    "name": "ImageURL",
-                    "caption": "Image URL",
-                    "width": "500px"
-                },
-                { 
-                    "type": "NumberSpinner", 
-                    "name": "Sekunden", 
-                    "caption": "Update interval",
-                    "minimum": 10,
-                    "suffix": "seconds",
-                    "width": "150px"
-                },
-                  {
                     "type": "NumberSpinner",
                     "name": "Bildtransparenz",
                     "caption": "Image transparency (values from 0 to 1)",
@@ -53,6 +39,25 @@
                     "name": "Kachelhintergrundfarbe",
                     "caption": "Tile background color"
                   }
+                ]
+              },
+              {
+                "type": "RowLayout",
+                "items": [
+                {
+                    "type": "ValidationTextBox",
+                    "name": "ImageURL",
+                    "caption": "Image URL",
+                    "width": "700px"
+                },
+                { 
+                    "type": "NumberSpinner", 
+                    "name": "Sekunden", 
+                    "caption": "Update interval",
+                    "minimum": 10,
+                    "suffix": "seconds",
+                    "width": "150px"
+                }
                 ]
               }
             ]
