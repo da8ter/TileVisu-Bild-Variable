@@ -95,7 +95,10 @@ class TileVisuImageVariableTile extends IPSModule
                                 if ($this->ReadPropertyBoolean($VariableProperty . 'AssoSwitch')) $result[$VariableProperty . 'asso'] = $this->CheckAndGetValueFormatted($VariableProperty);
                                 $result[$VariableProperty .'AltName'] =  $this->ReadPropertyString($VariableProperty .'AltName');
                             }
-
+                            if($VariableProperty == 'bgImage')
+                            {
+                                $result[$VariableProperty] =  $this->ReadPropertyInteger($VariableProperty);
+                            }
                             $this->UpdateVisualizationValue(json_encode($result));
 
                             
