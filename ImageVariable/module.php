@@ -103,7 +103,7 @@ class TileVisuImageVariableTile extends IPSModule
                             break; // Beende die Schleife, da der passende Wert gefunden wurde
 
                 
-                    case MM_UPDATE:
+                    case MM_UPDATE: //Medienobject wird auf aktualisierung überwacht und aktualisiert
                 
                             if($VariableProperty == 'bgImage')
                             {
