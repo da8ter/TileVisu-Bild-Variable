@@ -60,6 +60,7 @@ class TileVisuImageVariableTile extends IPSModule
 
         foreach (['bgImage', 'Variable'] as $VariableProperty)        {
             $this->RegisterMessage($this->ReadPropertyInteger($VariableProperty), VM_UPDATE);
+            $this->RegisterMessage($this->ReadPropertyInteger($VariableProperty), MM_UPDATE);
         }
 
         // Schicke eine komplette Update-Nachricht an die Darstellung, da sich ja Parameter geändert haben können
@@ -95,71 +96,82 @@ class TileVisuImageVariableTile extends IPSModule
                                 if ($this->ReadPropertyBoolean($VariableProperty . 'AssoSwitch')) $result[$VariableProperty . 'asso'] = $this->CheckAndGetValueFormatted($VariableProperty);
                                 $result[$VariableProperty .'AltName'] =  $this->ReadPropertyString($VariableProperty .'AltName');
                             }
-                            if($VariableProperty == 'bgImage')
-                            {
-                                $imageID = $this->ReadPropertyInteger('bgImage');
-                                if (IPS_MediaExists($imageID)) {
-                                    $image = IPS_GetMedia($imageID);
-                                    if ($image['MediaType'] === MEDIATYPE_IMAGE) {
-                                        $imageFile = explode('.', $image['MediaFile']);
-                                        $imageContent = '';
-                                        // Falls ja, ermittle den Anfang der src basierend auf dem Dateitypen
-                                        switch (end($imageFile)) {
-                                            case 'bmp':
-                                                $imageContent = 'data:image/bmp;base64,';
-                                                break;
-                        
-                                            case 'jpg':
-                                            case 'jpeg':
-                                                $imageContent = 'data:image/jpeg;base64,';
-                                                break;
-                        
-                                            case 'gif':
-                                                $imageContent = 'data:image/gif;base64,';
-                                                break;
-                        
-                                            case 'png':
-                                                $imageContent = 'data:image/png;base64,';
-                                                break;
-                        
-                                            case 'ico':
-                                                $imageContent = 'data:image/x-icon;base64,';
-                                                break;
-                                        }
-                    
-                                        // Nur fortfahren, falls Inhalt gesetzt wurde. Ansonsten ist das Bild kein unterstützter Dateityp
-                                        if ($imageContent) {
-                                            // Hänge base64-codierten Inhalt des Bildes an
-                                            $imageContent .= IPS_GetMediaContent($imageID);
-                                            $result['bgimage'] = $imageContent;
-                                            //$result['imageurl'] =  '';
-                                        }
-                    
-                                    }
-                                }
-                                else{
-                                    //Wenn kein Bild durch den User konfiguriert dann Standardhintergrundbild verwenden
-                                    $imageContent = 'data:image/png;base64,';
-                                    $imageContent .= base64_encode(file_get_contents(__DIR__ . '/../imgs/kachelhintergrund1.png'));
-                    
-                                    //Standardhintergrundbild nur verwenden wenn Schalter BG_Off = true
-                                    if ($this->ReadPropertyBoolean('BG_Off')) {
-                                        $result['bgimage'] = $imageContent;
-                                        //$result['imageurl'] =  '';
-                                    }
-                                    else {
-                                        $result['imageurl'] =  $this->ReadPropertyString('ImageURL');
-                                    }
-                                    
-                                    
-                                } 
-                            }
+                            
                             $this->UpdateVisualizationValue(json_encode($result));
 
                             
                             break; // Beende die Schleife, da der passende Wert gefunden wurde
 
                 }
+                case MM_UPDATE:
+                        
+                    // Teile der HTML-Darstellung den neuen Wert mit. Damit dieser korrekt formatiert ist, holen wir uns den von der Variablen via GetValueFormatted
+                    
+                        if($VariableProperty == 'bgImage')
+                        {
+                            $imageID = $this->ReadPropertyInteger('bgImage');
+                            if (IPS_MediaExists($imageID)) {
+                                $image = IPS_GetMedia($imageID);
+                                if ($image['MediaType'] === MEDIATYPE_IMAGE) {
+                                    $imageFile = explode('.', $image['MediaFile']);
+                                    $imageContent = '';
+                                    // Falls ja, ermittle den Anfang der src basierend auf dem Dateitypen
+                                    switch (end($imageFile)) {
+                                        case 'bmp':
+                                            $imageContent = 'data:image/bmp;base64,';
+                                            break;
+                    
+                                        case 'jpg':
+                                        case 'jpeg':
+                                            $imageContent = 'data:image/jpeg;base64,';
+                                            break;
+                    
+                                        case 'gif':
+                                            $imageContent = 'data:image/gif;base64,';
+                                            break;
+                    
+                                        case 'png':
+                                            $imageContent = 'data:image/png;base64,';
+                                            break;
+                    
+                                        case 'ico':
+                                            $imageContent = 'data:image/x-icon;base64,';
+                                            break;
+                                    }
+                
+                                    // Nur fortfahren, falls Inhalt gesetzt wurde. Ansonsten ist das Bild kein unterstützter Dateityp
+                                    if ($imageContent) {
+                                        // Hänge base64-codierten Inhalt des Bildes an
+                                        $imageContent .= IPS_GetMediaContent($imageID);
+                                        $result['bgimage'] = $imageContent;
+                                        //$result['imageurl'] =  '';
+                                    }
+                
+                                }
+                            }
+                            else{
+                                //Wenn kein Bild durch den User konfiguriert dann Standardhintergrundbild verwenden
+                                $imageContent = 'data:image/png;base64,';
+                                $imageContent .= base64_encode(file_get_contents(__DIR__ . '/../imgs/kachelhintergrund1.png'));
+                
+                                //Standardhintergrundbild nur verwenden wenn Schalter BG_Off = true
+                                if ($this->ReadPropertyBoolean('BG_Off')) {
+                                    $result['bgimage'] = $imageContent;
+                                    //$result['imageurl'] =  '';
+                                }
+                                else {
+                                    $result['imageurl'] =  $this->ReadPropertyString('ImageURL');
+                                }
+                                
+                                
+                            } 
+                        }
+                        $this->UpdateVisualizationValue(json_encode($result));
+
+                        
+                        break; // Beende die Schleife, da der passende Wert gefunden wurde
+
+            }
             }
         }
     }
