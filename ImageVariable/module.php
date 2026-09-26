@@ -4,6 +4,14 @@ declare(strict_types=1);
 
 class TileVisuImageVariableTile extends IPSModuleStrict
 {
+    // Bildtypen des Hintergrund-Mediums nach Dateiendung (wie bisher, Groß-/Kleinschreibung zählt)
+    private const IMAGE_TYPES = [
+        'bmp' => 'image/bmp', 'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg',
+        'gif' => 'image/gif', 'png' => 'image/png', 'ico' => 'image/x-icon'
+    ];
+    // Nativer Hook /hook/imagevariabletile/<InstanzID> für das Hintergrundbild
+    private const IMAGE_HOOK = 'imagevariabletile';
+
     public function Create(): void
     {
         // Nie diese Zeile löschen!
@@ -28,6 +36,11 @@ class TileVisuImageVariableTile extends IPSModuleStrict
         $this->RegisterPropertyInteger('Sekunden', 3600);
         // Visualisierungstyp auf 1 setzen, da wir HTML anbieten möchten
         $this->SetVisualizationType(1);
+
+        // Hintergrundbild über einen eigenen Hook statt als Data-URI in jedem Kacheldokument: der Browser
+        // cacht es unter versionierter Adresse, das Dokument bleibt klein. Ohne Hook wie bisher eingebettet.
+        $this->RegisterAttributeString('ImageHookToken', '');
+        $this->SetBuffer('ImageHook', $this->RegisterHook(self::IMAGE_HOOK . '/' . $this->InstanceID) ? '1' : '');
     }
 
     public function ApplyChanges(): void
@@ -40,6 +53,8 @@ class TileVisuImageVariableTile extends IPSModuleStrict
             $this->RegisterMessage(0, IPS_KERNELSTARTED);
             return;
         }
+
+        $this->EnsureImageHookToken();
 
         //Referenzen Registrieren
         $ids = [
@@ -124,66 +139,8 @@ class TileVisuImageVariableTile extends IPSModuleStrict
 
                     case MM_UPDATE: //Medienobject wird auf aktualisierung überwacht und aktualisiert
 
-                            $result = [];
-                            if($VariableProperty == 'bgImage')
-                            {
-                                $imageID = $this->ReadPropertyInteger('bgImage');
-                                if (IPS_MediaExists($imageID)) {
-                                    $image = IPS_GetMedia($imageID);
-                                    if ($image['MediaType'] === MEDIATYPE_IMAGE) {
-                                        $imageFile = explode('.', $image['MediaFile']);
-                                        $imageContent = '';
-                                        // Falls ja, ermittle den Anfang der src basierend auf dem Dateitypen
-                                        switch (end($imageFile)) {
-                                            case 'bmp':
-                                                $imageContent = 'data:image/bmp;base64,';
-                                                break;
-                        
-                                            case 'jpg':
-                                            case 'jpeg':
-                                                $imageContent = 'data:image/jpeg;base64,';
-                                                break;
-                        
-                                            case 'gif':
-                                                $imageContent = 'data:image/gif;base64,';
-                                                break;
-                        
-                                            case 'png':
-                                                $imageContent = 'data:image/png;base64,';
-                                                break;
-                        
-                                            case 'ico':
-                                                $imageContent = 'data:image/x-icon;base64,';
-                                                break;
-                                        }
-                    
-                                        // Nur fortfahren, falls Inhalt gesetzt wurde. Ansonsten ist das Bild kein unterstützter Dateityp
-                                        if ($imageContent) {
-                                            // Hänge base64-codierten Inhalt des Bildes an
-                                            $imageContent .= IPS_GetMediaContent($imageID);
-                                            $result['bgimage'] = $imageContent;
-                                            //$result['imageurl'] =  '';
-                                        }
-                    
-                                    }
-                                }
-                                else{
-                                    //Wenn kein Bild durch den User konfiguriert dann Standardhintergrundbild verwenden
-                                    $imageContent = 'data:image/png;base64,';
-                                    $imageContent .= base64_encode((string) file_get_contents(__DIR__ . '/../imgs/kachelhintergrund1.png'));
-
-                                    //Standardhintergrundbild nur verwenden wenn Schalter BG_Off = true
-                                    if ($this->ReadPropertyBoolean('BG_Off')) {
-                                        $result['bgimage'] = $imageContent;
-                                        //$result['imageurl'] =  '';
-                                    }
-                                    else {
-                                        $result['imageurl'] =  $this->ReadPropertyString('ImageURL');
-                                    }
-
-
-                                }
-                            }
+                            // Neuer Inhalt ergibt eine neue Hook-Adresse (Version = Hash des Inhalts)
+                            $result = $VariableProperty == 'bgImage' ? $this->GetBackground() : [];
                             // Nicht unterstütztes Medium: nichts zu melden (vorher ein wirkungsloses "null")
                             if ($result !== []) {
                                 $this->UpdateVisualizationValue($this->EncodeJSON($result));
@@ -268,67 +225,121 @@ class TileVisuImageVariableTile extends IPSModuleStrict
             
 
             
-            // Prüfe vorweg, ob ein Bild ausgewählt wurde
-            $imageID = $this->ReadPropertyInteger('bgImage');
-            if (IPS_MediaExists($imageID)) {
-                $image = IPS_GetMedia($imageID);
-                if ($image['MediaType'] === MEDIATYPE_IMAGE) {
-                    $imageFile = explode('.', $image['MediaFile']);
-                    $imageContent = '';
-                    // Falls ja, ermittle den Anfang der src basierend auf dem Dateitypen
-                    switch (end($imageFile)) {
-                        case 'bmp':
-                            $imageContent = 'data:image/bmp;base64,';
-                            break;
-    
-                        case 'jpg':
-                        case 'jpeg':
-                            $imageContent = 'data:image/jpeg;base64,';
-                            break;
-    
-                        case 'gif':
-                            $imageContent = 'data:image/gif;base64,';
-                            break;
-    
-                        case 'png':
-                            $imageContent = 'data:image/png;base64,';
-                            break;
-    
-                        case 'ico':
-                            $imageContent = 'data:image/x-icon;base64,';
-                            break;
-                    }
-
-                    // Nur fortfahren, falls Inhalt gesetzt wurde. Ansonsten ist das Bild kein unterstützter Dateityp
-                    if ($imageContent) {
-                        // Hänge base64-codierten Inhalt des Bildes an
-                        $imageContent .= IPS_GetMediaContent($imageID);
-                        $result['bgimage'] = $imageContent;
-                        //$result['imageurl'] =  '';
-                    }
-
-                }
-            }
-            else{
-                //Wenn kein Bild durch den User konfiguriert dann Standardhintergrundbild verwenden
-                $imageContent = 'data:image/png;base64,';
-                $imageContent .= base64_encode((string) file_get_contents(__DIR__ . '/../imgs/kachelhintergrund1.png'));
-
-                //Standardhintergrundbild nur verwenden wenn Schalter BG_Off = true
-                if ($this->ReadPropertyBoolean('BG_Off')) {
-                    $result['bgimage'] = $imageContent;
-                    //$result['imageurl'] =  '';
-                }
-                else {
-                    $result['imageurl'] =  $this->ReadPropertyString('ImageURL');
-                }
-
-
-            }
-
-
+            // Hintergrund zuletzt, wie bisher: bgimage oder imageurl
+            $result += $this->GetBackground();
 
         return $this->EncodeJSON($result);
+    }
+
+    // Hintergrund der Kachel, Vorrang wie bisher: eigenes Medienobjekt, sonst Standardbild (BG_Off),
+    // sonst Bild-URL. Ein Medium, das kein Bild ist oder einen anderen Dateityp hat, zeigt nichts.
+    // Mit $references wird aus der Data-URI die Hook-Adresse, sobald der Hook bereitsteht.
+    private function GetBackground(bool $references = true): array
+    {
+        $imageID = $this->ReadPropertyInteger('bgImage');
+        if (IPS_MediaExists($imageID)) {
+            $image = IPS_GetMedia($imageID);
+            $imageFile = explode('.', $image['MediaFile']);
+            $mime = self::IMAGE_TYPES[end($imageFile)] ?? '';
+            if ($image['MediaType'] !== MEDIATYPE_IMAGE || $mime === '') {
+                return [];
+            }
+            // IPS_GetMediaContent liefert den Inhalt bereits base64-kodiert
+            $dataUri = 'data:' . $mime . ';base64,' . IPS_GetMediaContent($imageID);
+        } elseif ($this->ReadPropertyBoolean('BG_Off')) {
+            // Standardbild nur lesen und kodieren, wenn es auch angezeigt wird
+            $dataUri = 'data:image/png;base64,' . base64_encode((string) file_get_contents(__DIR__ . '/../imgs/kachelhintergrund1.png'));
+        } else {
+            return ['imageurl' => $this->ReadPropertyString('ImageURL')];
+        }
+        return ['bgimage' => $references ? $this->ImageReference('bgimage', $dataUri) : $dataUri];
+    }
+
+    // Hook-Adresse statt Data-URI, sobald der Hook in diesem Kernel-Lauf registriert ist. Die Version (Hash
+    // des Inhalts) steht in der Adresse: neuer Inhalt ergibt eine neue Adresse, der Browser darf lange cachen.
+    // Was die Ausgabegrenze eines Hooks sprengen würde, bleibt eingebettet wie bisher.
+    private function ImageReference(string $key, string $dataUri): string
+    {
+        $token = $this->ImageHookActive() ? $this->ReadAttributeString('ImageHookToken') : '';
+        $comma = strpos($dataUri, ',');
+        if ($token === '' || $comma === false || !str_starts_with($dataUri, 'data:')
+            || intdiv((strlen($dataUri) - $comma - 1) * 3, 4) > $this->HookBodyLimit()) {
+            return $dataUri;
+        }
+        return '/hook/' . self::IMAGE_HOOK . '/' . $this->InstanceID . '?k=' . rawurlencode($key)
+            . '&v=' . substr(hash('sha256', $dataUri), 0, 16) . '&t=' . $token;
+    }
+
+    private function ImageHookActive(): bool
+    {
+        return $this->GetBuffer('ImageHook') === '1';
+    }
+
+    private function EnsureImageHookToken(): void
+    {
+        if ($this->ImageHookActive() && $this->ReadAttributeString('ImageHookToken') === '') {
+            $this->WriteAttributeString('ImageHookToken', bin2hex(random_bytes(16)));
+        }
+    }
+
+    // Größte Antwort, die Symcon unverändert ausliefert (ScriptOutputBufferLimit, ab Werk 1 MiB), mit Reserve.
+    private function HookBodyLimit(): int
+    {
+        $limit = 1048576;
+        try {
+            $option = IPS_GetOption('ScriptOutputBufferLimit');
+            if (is_numeric($option) && (int) $option > 0) {
+                $limit = (int) $option;
+            }
+        } catch (Throwable $e) {
+            $this->SendDebug('Image', 'ScriptOutputBufferLimit: ' . $e->getMessage(), 0);
+        }
+        return max(0, $limit - 1024);
+    }
+
+    // /hook/imagevariabletile/<ID>?k=bgimage&v=<Version>&t=<Token>: das Hintergrundbild des aktuellen Kachelstands.
+    // Ohne gültiges Token keine Antwort; ausgeliefert wird nur der Bildschlüssel der Kachel.
+    protected function ProcessHookData(): void
+    {
+        $token = $this->ImageHookActive() ? $this->ReadAttributeString('ImageHookToken') : '';
+        $given = isset($_GET['t']) && is_string($_GET['t']) ? $_GET['t'] : '';
+        if ($token === '' || !hash_equals($token, $given)) {
+            $this->SendStatus(403);
+            return;
+        }
+        $key = isset($_GET['k']) && is_string($_GET['k']) ? $_GET['k'] : '';
+        $data = $key === 'bgimage' ? ($this->GetBackground(false)['bgimage'] ?? '') : '';
+        $comma = strpos($data, ',');
+        $mime = $comma === false ? '' : substr($data, 5, (int) strpos($data, ';') - 5);
+        $bytes = $comma === false ? false : base64_decode(substr($data, $comma + 1), true);
+        if (!str_starts_with($data, 'data:') || !in_array($mime, self::IMAGE_TYPES, true) || $bytes === false) {
+            $this->SendStatus(404);
+            return;
+        }
+        $version = substr(hash('sha256', $data), 0, 16);
+        $current = isset($_GET['v']) && $_GET['v'] === $version;
+        // Nur die passende Version darf lange gecacht werden; eine alte Adresse bekommt den neuen Inhalt ungecacht.
+        $this->SendHeader('Cache-Control: ' . ($current ? 'private, max-age=31536000, immutable' : 'no-cache'));
+        $this->SendHeader('ETag: "' . $version . '"');
+        $this->SendHeader('X-Content-Type-Options: nosniff');
+        if ($current && trim((string) ($_SERVER['HTTP_IF_NONE_MATCH'] ?? '')) === '"' . $version . '"') {
+            $this->SendStatus(304);
+            return;
+        }
+        $this->SendHeader('Content-Type: ' . $mime);
+        $this->SendHeader('Content-Length: ' . strlen($bytes));
+        echo $bytes;
+    }
+
+    // Eigene Methoden für Kopfzeilen und Status, damit die Tests den Hook ohne Webserver prüfen können.
+    protected function SendHeader(string $header): void
+    {
+        header($header);
+    }
+
+    protected function SendStatus(int $code): void
+    {
+        http_response_code($code);
     }
 
     // json_encode liefert bei ungültigem UTF-8 false; die Darstellung bekommt dann ein leeres Update statt eines Typfehlers.
