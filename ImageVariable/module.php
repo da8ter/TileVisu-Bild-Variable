@@ -1,7 +1,10 @@
 <?php
-class TileVisuImageVariableTile extends IPSModule
+
+declare(strict_types=1);
+
+class TileVisuImageVariableTile extends IPSModuleStrict
 {
-    public function Create()
+    public function Create(): void
     {
         // Nie diese Zeile löschen!
         parent::Create();
@@ -9,28 +12,34 @@ class TileVisuImageVariableTile extends IPSModule
 
         // Drei Eigenschaften für die dargestellten Zähler
         $this->RegisterPropertyInteger("bgImage", 0);
-        $this->RegisterPropertyBoolean('BG_Off', 1);
+        $this->RegisterPropertyBoolean('BG_Off', true);
         $this->RegisterPropertyString('ImageURL', '');
-        $this->RegisterPropertyFloat('Schriftgroesse', 1);
+        $this->RegisterPropertyFloat('Schriftgroesse', 1.0);
         $this->RegisterPropertyFloat('Bildtransparenz', 0.7);
         $this->RegisterPropertyInteger('Kachelhintergrundfarbe', 0x000000);
         $this->RegisterPropertyInteger('InfoMenueSchriftfarbe', 0xFFFFFF);
         $this->RegisterPropertyInteger('Variable', 0);
-        $this->RegisterPropertyFloat('VariableSchriftgroesse', 1);
+        $this->RegisterPropertyFloat('VariableSchriftgroesse', 1.0);
         $this->RegisterPropertyString('VariableAltName', '');
-        $this->RegisterPropertyBoolean('VariableNameSwitch', 1);
-        $this->RegisterPropertyBoolean('VariableIconSwitch', 1);
-        $this->RegisterPropertyBoolean('VariableVarIconSwitch', 0);
-        $this->RegisterPropertyBoolean('VariableAssoSwitch', 1);
+        $this->RegisterPropertyBoolean('VariableNameSwitch', true);
+        $this->RegisterPropertyBoolean('VariableIconSwitch', true);
+        $this->RegisterPropertyBoolean('VariableVarIconSwitch', false);
+        $this->RegisterPropertyBoolean('VariableAssoSwitch', true);
         $this->RegisterPropertyInteger('Sekunden', 3600);
         // Visualisierungstyp auf 1 setzen, da wir HTML anbieten möchten
         $this->SetVisualizationType(1);
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         parent::ApplyChanges();
 
+        // Kein Heavy Work vor KR_READY: Referenzen, Nachrichten und Fremdobjekt-Zugriffe
+        // erst, wenn der Kernel bereit ist. MessageSink holt ApplyChanges dann nach.
+        if (IPS_GetKernelRunlevel() !== KR_READY) {
+            $this->RegisterMessage(0, IPS_KERNELSTARTED);
+            return;
+        }
 
         //Referenzen Registrieren
         $ids = [
@@ -40,14 +49,15 @@ class TileVisuImageVariableTile extends IPSModule
         $refs = $this->GetReferenceList();
             foreach($refs as $ref) {
                 $this->UnregisterReference($ref);
-            } 
+            }
             foreach ($ids as $id) {
-                if ($id !== '') {
+                // 0 = nicht konfiguriert
+                if ($id > 0) {
                     $this->RegisterReference($id);
                 }
             }
 
-        
+
         // Aktualisiere registrierte Nachrichten
         foreach ($this->GetMessageList() as $senderID => $messageIDs)
         {
@@ -59,16 +69,24 @@ class TileVisuImageVariableTile extends IPSModule
 
 
         foreach (['bgImage', 'Variable'] as $VariableProperty)        {
-            $this->RegisterMessage($this->ReadPropertyInteger($VariableProperty), VM_UPDATE);
-            $this->RegisterMessage($this->ReadPropertyInteger($VariableProperty), MM_UPDATE);
+            // Absender 0 hiesse: Nachrichten ALLER Objekte. Nicht konfigurierte Eigenschaften überspringen.
+            $id = $this->ReadPropertyInteger($VariableProperty);
+            if ($id > 0) {
+                $this->RegisterMessage($id, VM_UPDATE);
+                $this->RegisterMessage($id, MM_UPDATE);
+            }
         }
 
         // Schicke eine komplette Update-Nachricht an die Darstellung, da sich ja Parameter geändert haben können
         $this->UpdateVisualizationValue($this->GetFullUpdateMessage());
     }
 
-    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
+    public function MessageSink(int $TimeStamp, int $SenderID, int $Message, array $Data): void
     {
+        if ($Message === IPS_KERNELSTARTED) {
+            $this->ApplyChanges();
+            return;
+        }
 
         foreach (['bgImage', 'Variable'] as $index => $VariableProperty)
         {
@@ -79,11 +97,12 @@ class TileVisuImageVariableTile extends IPSModule
                 switch ($Message)
                 {
                     case VM_UPDATE:
-                        
+
                         // Teile der HTML-Darstellung den neuen Wert mit. Damit dieser korrekt formatiert ist, holen wir uns den von der Variablen via GetValueFormatted
-                        $this->UpdateVisualizationValue(json_encode([$VariableProperty => GetValueFormatted($this->ReadPropertyInteger($VariableProperty))]));
-                        
+                        $this->UpdateVisualizationValue($this->EncodeJSON([$VariableProperty => GetValueFormatted($this->ReadPropertyInteger($VariableProperty))]));
+
                         //Icon und Farbe abrufen
+                            $result = [];
                             //Farbe abrufen
                             $result[$VariableProperty . 'Color'] = $this->GetColor($this->ReadPropertyInteger($VariableProperty));
 
@@ -96,15 +115,16 @@ class TileVisuImageVariableTile extends IPSModule
                                 if ($this->ReadPropertyBoolean($VariableProperty . 'AssoSwitch')) $result[$VariableProperty . 'asso'] = $this->CheckAndGetValueFormatted($VariableProperty);
                                 $result[$VariableProperty .'AltName'] =  $this->ReadPropertyString($VariableProperty .'AltName');
                             }
-                            
-                            $this->UpdateVisualizationValue(json_encode($result));
 
-                            
+                            $this->UpdateVisualizationValue($this->EncodeJSON($result));
+
+
                             break; // Beende die Schleife, da der passende Wert gefunden wurde
 
-                
+
                     case MM_UPDATE: //Medienobject wird auf aktualisierung überwacht und aktualisiert
-                
+
+                            $result = [];
                             if($VariableProperty == 'bgImage')
                             {
                                 $imageID = $this->ReadPropertyInteger('bgImage');
@@ -150,8 +170,8 @@ class TileVisuImageVariableTile extends IPSModule
                                 else{
                                     //Wenn kein Bild durch den User konfiguriert dann Standardhintergrundbild verwenden
                                     $imageContent = 'data:image/png;base64,';
-                                    $imageContent .= base64_encode(file_get_contents(__DIR__ . '/../imgs/kachelhintergrund1.png'));
-                    
+                                    $imageContent .= base64_encode((string) file_get_contents(__DIR__ . '/../imgs/kachelhintergrund1.png'));
+
                                     //Standardhintergrundbild nur verwenden wenn Schalter BG_Off = true
                                     if ($this->ReadPropertyBoolean('BG_Off')) {
                                         $result['bgimage'] = $imageContent;
@@ -160,11 +180,14 @@ class TileVisuImageVariableTile extends IPSModule
                                     else {
                                         $result['imageurl'] =  $this->ReadPropertyString('ImageURL');
                                     }
-                                    
-                                    
-                                } 
+
+
+                                }
                             }
-                            $this->UpdateVisualizationValue(json_encode($result));
+                            // Nicht unterstütztes Medium: nichts zu melden (vorher ein wirkungsloses "null")
+                            if ($result !== []) {
+                                $this->UpdateVisualizationValue($this->EncodeJSON($result));
+                            }
 
                             
                             break; // Beende die Schleife, da der passende Wert gefunden wurde
@@ -176,13 +199,18 @@ class TileVisuImageVariableTile extends IPSModule
 
 
      
-    public function GetVisualizationTile()
+    public function GetVisualizationTile(): string
     {
         // Füge ein Skript hinzu, um beim Laden, analog zu Änderungen bei Laufzeit, die Werte zu setzen
-        $initialHandling = '<script>handleMessage(' . json_encode($this->GetFullUpdateMessage()) . ')</script>';
+        // (doppelt kodiert: der JSON-Text wird zum escapten JS-Stringliteral)
+        $initialHandling = '<script>handleMessage(' . $this->EncodeJSON($this->GetFullUpdateMessage()) . ')</script>';
 
         // Füge statisches HTML aus Datei hinzu
         $module = file_get_contents(__DIR__ . '/module.html');
+        if ($module === false) {
+            $this->LogMessage('module.html could not be loaded', KL_ERROR);
+            $module = '';
+        }
 
 
         $secondsvalue = $this->ReadPropertyInteger('Sekunden') * 1000;
@@ -203,7 +231,7 @@ class TileVisuImageVariableTile extends IPSModule
 
 
     // Generiere eine Nachricht, die alle Elemente in der HTML-Darstellung aktualisiert
-    private function GetFullUpdateMessage() {
+    private function GetFullUpdateMessage(): string {
 
         $result = [];
     
@@ -284,7 +312,7 @@ class TileVisuImageVariableTile extends IPSModule
             else{
                 //Wenn kein Bild durch den User konfiguriert dann Standardhintergrundbild verwenden
                 $imageContent = 'data:image/png;base64,';
-                $imageContent .= base64_encode(file_get_contents(__DIR__ . '/../imgs/kachelhintergrund1.png'));
+                $imageContent .= base64_encode((string) file_get_contents(__DIR__ . '/../imgs/kachelhintergrund1.png'));
 
                 //Standardhintergrundbild nur verwenden wenn Schalter BG_Off = true
                 if ($this->ReadPropertyBoolean('BG_Off')) {
@@ -294,15 +322,27 @@ class TileVisuImageVariableTile extends IPSModule
                 else {
                     $result['imageurl'] =  $this->ReadPropertyString('ImageURL');
                 }
-                
-                
-            } 
+
+
+            }
 
 
 
-        return json_encode($result);
+        return $this->EncodeJSON($result);
     }
-    private function CheckAndGetValueFormatted($property) {
+
+    // json_encode liefert bei ungültigem UTF-8 false; die Darstellung bekommt dann ein leeres Update statt eines Typfehlers.
+    private function EncodeJSON(mixed $data): string
+    {
+        $json = json_encode($data);
+        if ($json === false) {
+            $this->SendDebug('JSON', json_last_error_msg(), 0);
+            return '{}';
+        }
+        return $json;
+    }
+
+    private function CheckAndGetValueFormatted(string $property): string|false {
         $id = $this->ReadPropertyInteger($property);
         if (IPS_VariableExists($id)) {
             return GetValueFormatted($id);
@@ -311,7 +351,7 @@ class TileVisuImageVariableTile extends IPSModule
     }
 
 
-    private function GetColor($id) {
+    private function GetColor(int $id): string {
         $variable = IPS_GetVariable($id);
         $Value = GetValue($id);
         $profile = $variable['VariableCustomProfile'] ?: $variable['VariableProfile'];
@@ -331,15 +371,15 @@ class TileVisuImageVariableTile extends IPSModule
 
 
     
-    private function GetIcon($id, $varicon) {
+    private function GetIcon(int $id, bool $varicon): string {
         $variable = IPS_GetVariable($id);
         $Value = GetValue($id);
         $icon = "";
         //Abfragen ob das Variablen-Icon oder das Profil-Icon verwendet werden soll
         if($varicon == true){
-        $icon = IPS_GetObject($id);
-            if($icon['ObjectIcon'] != ""){
-                $icon = $icon['ObjectIcon'];
+        $object = IPS_GetObject($id);
+            if($object['ObjectIcon'] != ""){
+                $icon = $object['ObjectIcon'];
             }
             else {
                 $icon = "Transparent";
@@ -377,4 +417,3 @@ class TileVisuImageVariableTile extends IPSModule
     }
 
 }
-?>
