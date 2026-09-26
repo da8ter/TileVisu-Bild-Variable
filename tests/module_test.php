@@ -6,6 +6,7 @@ declare(strict_types=1);
 require __DIR__ . '/bootstrap.php';
 
 const ALTSTAND = '772a161'; // letzter Stand vor Module Strict und Bild-Hook
+const VOR_FILTER = '3c6378d'; // letzter Stand, der jede Aktualisierung an die Kachel schickte
 
 // Derselbe Ablauf für alte und neue Fassung: jede Ausgabe an die Kachel, in Reihenfolge.
 function szenarien(): array
@@ -105,6 +106,39 @@ function szenarien(): array
     return $out;
 }
 
+// VM_UPDATE nur bei echter Wertänderung: Zeilen [Bezeichnung, erwartete Nachrichten, gesendete Nachrichten].
+// Läuft auch gegen den Stand vor dem Filter; dort müssen genau die Zeilen fallen, die keine Nachricht erwarten.
+function nachrichtenfilter(): array
+{
+    global $variables;
+    variable(20100, 21.5, '21,5 °C', ['ObjectName' => 'Bad']);
+    $m = new TileVisuImageVariableTile(12400);
+    $m->Create();
+    $m->properties['Variable'] = 20100;
+    $m->ApplyChanges();
+    $zeilen = [];
+    // $Data wie von Symcon: [neuer Wert, geändert, alter Wert, Zeitstempel]
+    $update = static function (string $label, int $erwartet, array $data) use ($m, &$zeilen): void {
+        $vorher = count($m->updates);
+        $m->MessageSink(0, 20100, VM_UPDATE, $data);
+        $zeilen[] = [$label, $erwartet, count($m->updates) - $vorher];
+    };
+    $update('Update without a new value ($Data[1] false) sends nothing', 0, [21.5, false, 21.5, 1]);
+    $variables[20100]['value'] = 22.0;
+    $variables[20100]['formatted'] = '22,0 °C';
+    $update('Changed value sends value and details', 2, [22.0, true, 21.5, 2]);
+    $variables[20100]['value'] = 22.01; // formatiert wie zuvor
+    $update('Identical messages are not sent again', 0, [22.01, true, 22.0, 3]);
+    $m->ApplyChanges();
+    $update('After ApplyChanges the same messages go out again', 2, [22.02, true, 22.01, 4]);
+    $update('... but only once', 0, [22.03, true, 22.02, 5]);
+    $m->GetVisualizationTile();
+    $update('After the initial build of a tile they go out again', 2, [22.04, true, 22.03, 6]);
+    $m->GetVisualizationTile();
+    $update('Without $Data[1] (other format) the update is sent', 2, []);
+    return $zeilen;
+}
+
 // Führt diese Datei mit einer anderen Fassung der Kachel in einem eigenen Prozess aus: [Exitcode, Ausgabe].
 function unterprozess(string $moduleFile, string $mode): array
 {
@@ -178,6 +212,12 @@ if ($mode === 'ohne-standardbild') {
     } catch (ErrorException $e) {
         echo ' / access when shown';
     }
+    exit(0);
+}
+
+if ($mode === 'nachrichtenfilter') {
+    // Gegenprobe: dieselben Schritte mit einer anderen Fassung der Kachel
+    echo json_encode(nachrichtenfilter(), JSON_THROW_ON_ERROR);
     exit(0);
 }
 
@@ -384,6 +424,27 @@ $n->ApplyChanges();
 $n->hook(['k' => 'bgimage', 't' => str_repeat('a', 32)]);
 check(latest($n)['bgimage'] === $defaultUri && $n->status === 403,
     'A token from an earlier kernel run is not honoured while the hook is not registered');
+
+// --- VM_UPDATE nur bei echter Wertänderung -------------------------------------------------------
+$zeilen = nachrichtenfilter();
+foreach ($zeilen as [$label, $erwartet, $ist]) {
+    check($ist === $erwartet, $label . ' (' . $ist . ' messages)');
+}
+exec('git -C ' . $repo . ' cat-file -e ' . escapeshellarg(VOR_FILTER . '^{commit}') . ' 2>/dev/null', $unused, $gitCode);
+if ($gitCode !== 0) {
+    echo 'SKIP: ' . VOR_FILTER . ' not available, no counter-check of the message filter' . PHP_EOL;
+} else {
+    $dateien = [];
+    foreach (['ImageVariable/module.php', 'ImageVariable/module.html', 'imgs/kachelhintergrund1.png'] as $pfad) {
+        $dateien[$pfad] = (string) shell_exec('git -C ' . $repo . ' show ' . escapeshellarg(VOR_FILTER . ':' . $pfad));
+    }
+    [$code, $json] = unterprozess(kopie($dateien) . '/ImageVariable/module.php', 'nachrichtenfilter');
+    $vorher = $code === 0 ? json_decode($json, true, 512, JSON_THROW_ON_ERROR) : [];
+    $fallend = array_column(array_filter($vorher, static fn (array $z): bool => $z[1] !== $z[2]), 0);
+    $still = array_column(array_filter($zeilen, static fn (array $z): bool => $z[1] === 0), 0);
+    check($code === 0 && $still !== [] && $fallend === $still,
+        'Counter-check: without the filter (' . VOR_FILTER . ') exactly the ' . count($still) . ' checks expecting no message fail');
+}
 
 // --- Standardbild nur lesen, wenn es angezeigt wird ----------------------------------------------
 $ohneBild = kopie([

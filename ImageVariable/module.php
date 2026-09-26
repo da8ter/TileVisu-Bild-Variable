@@ -92,7 +92,9 @@ class TileVisuImageVariableTile extends IPSModuleStrict
             }
         }
 
-        // Schicke eine komplette Update-Nachricht an die Darstellung, da sich ja Parameter geändert haben können
+        // Schicke eine komplette Update-Nachricht an die Darstellung, da sich ja Parameter geändert haben können.
+        // Die Prüfwerte der zuletzt gesendeten Nachrichten gelten danach nicht mehr.
+        $this->SetBuffer('UpdateHashes', '');
         $this->UpdateVisualizationValue($this->GetFullUpdateMessage());
     }
 
@@ -100,6 +102,11 @@ class TileVisuImageVariableTile extends IPSModuleStrict
     {
         if ($Message === IPS_KERNELSTARTED) {
             $this->ApplyChanges();
+            return;
+        }
+
+        // Symcon meldet jede Aktualisierung einer Variable, auch ohne neuen Wert: dann bleibt die Kachel, wie sie ist
+        if ($Message === VM_UPDATE && !self::ValueChanged($Data)) {
             return;
         }
 
@@ -114,7 +121,7 @@ class TileVisuImageVariableTile extends IPSModuleStrict
                     case VM_UPDATE:
 
                         // Teile der HTML-Darstellung den neuen Wert mit. Damit dieser korrekt formatiert ist, holen wir uns den von der Variablen via GetValueFormatted
-                        $this->UpdateVisualizationValue($this->EncodeJSON([$VariableProperty => GetValueFormatted($this->ReadPropertyInteger($VariableProperty))]));
+                        $messages = [$this->EncodeJSON([$VariableProperty => GetValueFormatted($this->ReadPropertyInteger($VariableProperty))])];
 
                         //Icon und Farbe abrufen
                             $result = [];
@@ -131,8 +138,10 @@ class TileVisuImageVariableTile extends IPSModuleStrict
                                 $result[$VariableProperty .'AltName'] =  $this->ReadPropertyString($VariableProperty .'AltName');
                             }
 
-                            $this->UpdateVisualizationValue($this->EncodeJSON($result));
+                            $messages[] = $this->EncodeJSON($result);
 
+                            // Wert und Details gehen weiter als Paar hinaus, aber nicht noch einmal unverändert
+                            $this->SendUpdateIfChanged($VariableProperty, ...$messages);
 
                             break; // Beende die Schleife, da der passende Wert gefunden wurde
 
@@ -158,6 +167,9 @@ class TileVisuImageVariableTile extends IPSModuleStrict
      
     public function GetVisualizationTile(): string
     {
+        // Erstaufbau: die Kachel bekommt den vollen Stand, danach geht jede Wertänderung wieder hinaus
+        $this->SetBuffer('UpdateHashes', '');
+
         // Füge ein Skript hinzu, um beim Laden, analog zu Änderungen bei Laufzeit, die Werte zu setzen
         // (doppelt kodiert: der JSON-Text wird zum escapten JS-Stringliteral)
         $initialHandling = '<script>handleMessage(' . $this->EncodeJSON($this->GetFullUpdateMessage()) . ')</script>';
@@ -351,6 +363,30 @@ class TileVisuImageVariableTile extends IPSModuleStrict
             return '{}';
         }
         return $json;
+    }
+
+    // Symcon meldet mit VM_UPDATE jede Aktualisierung; $Data[1] sagt, ob sich der Wert geändert hat.
+    // Fehlt die Angabe (anderes Format), gilt sie als Änderung: lieber senden als eine verschlucken.
+    private static function ValueChanged(array $Data): bool
+    {
+        return !isset($Data[1]) || (bool) $Data[1];
+    }
+
+    // Schickt die Nachrichten eines Schlüssels nur, wenn sie sich von den zuletzt dazu gesendeten unterscheiden.
+    // Die Prüfwerte (md5) stehen im Puffer UpdateHashes; ApplyChanges und der Erstaufbau leeren ihn.
+    private function SendUpdateIfChanged(string $key, string ...$messages): void
+    {
+        $hashes = json_decode($this->GetBuffer('UpdateHashes'), true);
+        $hashes = is_array($hashes) ? $hashes : [];
+        $hash = md5(serialize($messages));
+        if (($hashes[$key] ?? null) === $hash) {
+            return;
+        }
+        foreach ($messages as $message) {
+            $this->UpdateVisualizationValue($message);
+        }
+        $hashes[$key] = $hash;
+        $this->SetBuffer('UpdateHashes', (string) json_encode($hashes));
     }
 
     private function CheckAndGetValueFormatted(string $property): string|false {
