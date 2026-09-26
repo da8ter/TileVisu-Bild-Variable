@@ -218,9 +218,12 @@ if ($gitCode !== 0) {
     echo 'SKIP: ' . ALTSTAND . ' not available, no comparison with the previous state' . PHP_EOL;
 } else {
     $dateien = [];
-    foreach (['ImageVariable/module.php', 'ImageVariable/module.html', 'imgs/kachelhintergrund1.png'] as $pfad) {
+    foreach (['ImageVariable/module.php', 'imgs/kachelhintergrund1.png'] as $pfad) {
         $dateien[$pfad] = (string) shell_exec('git -C ' . $repo . ' show ' . escapeshellarg(ALTSTAND . ':' . $pfad));
     }
+    // Verglichen wird das PHP-Verhalten: beide Seiten mit dem aktuellen module.html (der Icon-Baustein darin
+    // wird unabhängig vom Modul weiterentwickelt).
+    $dateien['ImageVariable/module.html'] = (string) file_get_contents(__DIR__ . '/../ImageVariable/module.html');
     [$code, $json] = unterprozess(kopie($dateien) . '/ImageVariable/module.php', 'szenarien');
     $alt = $code === 0 ? json_decode($json, true, 512, JSON_THROW_ON_ERROR) : ['out' => [], 'warnungen' => []];
     $erste = 'none';
