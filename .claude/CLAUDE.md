@@ -33,4 +33,4 @@ Umfang und die Handprobe in einer Symcon-Testinstanz: `tests/README.md`.
 
 ## Wissen
 
-Gemeinsames Symcon-Plattformwissen (Lebenszyklus, Hooks, Timer, Kacheln, Icons): https://github.com/da8ter/SymDo-Family-Organizer/tree/SymDo-Beta/docs/plattform – lokal `../List/docs/plattform/`. Symcon-Fragen am offiziellen Handbuch prüfen, nicht aus dem Modulbestand ableiten.
+Gemeinsames Symcon-Plattformwissen (Lebenszyklus, Hooks, Timer, Kacheln, Icons): https://github.com/da8ter/SymDo-Family-Organizer/tree/SymDo-Beta/.claude/docs/plattform – lokal `../List/.claude/docs/plattform/`. Symcon-Fragen am offiziellen Handbuch prüfen, nicht aus dem Modulbestand ableiten.
